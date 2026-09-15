@@ -19,6 +19,7 @@ jobs:
         with: { python-version: "3.12" }
       - run: python -m pip install .
       - name: the CLI runs and the Android backend imports without pyobjc
+        shell: bash
         run: |
           phone-harness skill > /dev/null
           python -c "import phone_harness.android, phone_harness.transport, phone_harness.config as c; print('default platform:', c.get('platform'))"
@@ -30,6 +31,7 @@ jobs:
           echo "$out" | grep -q "adb found"
       - name: iPhone is refused with a clear message off macOS
         if: runner.os != 'macOS'
+        shell: bash
         run: |
           python -c "
           import phone_harness.transport as t
