@@ -33,7 +33,7 @@ from pathlib import Path
 VERSION = 1
 
 DEFAULTS = {
-    "platform": "ios",
+    "platform": "ios" if sys.platform == "darwin" else "android",   # iPhone needs a Mac
     "telemetry": True,         # anonymous usage events; `config set telemetry false`
     "android": {
         "adb": "adb",          # the binary; a path if it is not on PATH

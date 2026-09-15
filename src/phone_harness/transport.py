@@ -74,6 +74,7 @@ supports(op) rather than guessing.
 """
 import importlib
 import os
+import sys
 
 
 class Unsupported(RuntimeError):
@@ -137,6 +138,10 @@ def connect(platform=None, **kw):
     from . import config
     platform = (platform or config.get("platform")).lower()
     if platform in ("ios", "iphone", "ipad"):
+        if sys.platform != "darwin":
+            raise RuntimeError("iPhone control needs macOS (it drives the iPhone Mirroring app); "
+                               "on this machine use Android: PHONE_HARNESS_PLATFORM=android "
+                               "or `phone-harness config set platform android`")
         return importlib.import_module(".ios", __package__).IPhone(**kw)
     if platform == "android":
         return importlib.import_module(".android", __package__).Android(**kw)

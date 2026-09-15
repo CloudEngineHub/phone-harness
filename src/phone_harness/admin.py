@@ -3,6 +3,7 @@ helpers would drive — the config default, or `--doctor ios|android`."""
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -98,16 +99,21 @@ def _doctor_ios():
 
 # --- Android: adb -> a phone -> authorised -> awake -> tree ------------------
 
+_ADB_INSTALL = {"darwin": "brew install android-platform-tools",
+                "win32": "winget install Google.PlatformTools"}.get(sys.platform, "apt install adb (or your distro's android-tools)")
+_SCRCPY_INSTALL = {"darwin": "brew install scrcpy", "win32": "winget install Genymobile.scrcpy"}.get(sys.platform, "apt install scrcpy")
+
+
 def _doctor_android():
     from . import config
     adb = str(config.get("android.adb"))
     if not shutil.which(adb):
         _check(f"adb found ({adb})", False,
-               "brew install android-platform-tools, or set android.adb to the binary")
+               _ADB_INSTALL + ", or set android.adb to the binary")
         return
     _check(f"adb found ({shutil.which(adb)})", True)
     _check("scrcpy found (optional: live mirror during `android awake`)",
-           bool(shutil.which("scrcpy")), "brew install scrcpy — not required", fatal=False)
+           bool(shutil.which("scrcpy")), _SCRCPY_INSTALL + " — not required", fatal=False)
 
     from . import android
     phone = android.Android()

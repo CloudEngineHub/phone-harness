@@ -10,7 +10,7 @@ either way; you choose a default and can switch per call.
 ```bash
 git clone https://github.com/ShawnPana/phone-harness ~/.phone-harness   # canonical home
 cd ~/.phone-harness
-pip install -e .                      # the global `phone-harness` command (pulls pyobjc)
+pip install -e .                      # the global `phone-harness` command (pulls pyobjc on macOS only)
 
 # register as an agent skill so Claude Code / Codex reach for it automatically
 mkdir -p ~/.claude/skills/phone-harness
@@ -19,7 +19,9 @@ mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills/phone-harness"
 phone-harness skill > "${CODEX_HOME:-$HOME/.codex}/skills/phone-harness/SKILL.md"
 ```
 
-- Python 3.10+. Only the CLI? `pip install phone-harness` works too; the
+- Python 3.10+, any OS. **iPhone needs a Mac** (it drives iPhone Mirroring);
+  **Android works on macOS, Linux and Windows** and is the default off a Mac.
+  Only the CLI? `pip install phone-harness` works too; the
   checkout is what makes the harness editable (`agent-workspace/agent_helpers.py`).
 - The default phone is `phone-harness config set platform ios|android`;
   `phone-harness config` shows every setting and where it came from;
@@ -51,8 +53,10 @@ the agent's copy matches the code.
 
 ## Android
 
-- `brew install android-platform-tools` (adb). Optional: `brew install scrcpy`
-  for a live mirror window during `phone-harness android awake`.
+- adb: `brew install android-platform-tools` (macOS), `apt install adb` (Debian/Ubuntu),
+  `winget install Google.PlatformTools` (Windows). Optional: `scrcpy` (`brew` /
+  `apt` / `winget install Genymobile.scrcpy`) for a live mirror window during
+  `phone-harness android awake`.
 - On the phone, once: Settings → About phone → tap **Build number** 7× →
   Settings → System → **Developer options**.
 - **USB**: Developer options → **USB debugging** on → plug in → tap **Allow**
