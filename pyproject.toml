@@ -1,6 +1,6 @@
 [project]
 name = "phone-harness"
-version = "0.3.0"
+version = "0.2.1"
 description = "Control a real iPhone through macOS iPhone Mirroring: OCR eyes, CGEvent hands"
 readme = "README.md"
 license = "MIT"
