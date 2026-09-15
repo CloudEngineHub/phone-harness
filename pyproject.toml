@@ -1,6 +1,6 @@
 [project]
 name = "phone-harness"
-version = "0.2.0"
+version = "0.3.0"
 description = "Control a real iPhone through macOS iPhone Mirroring: OCR eyes, CGEvent hands"
 readme = "README.md"
 license = "MIT"
@@ -15,10 +15,12 @@ classifiers = [
     "Topic :: Software Development :: Testing",
 ]
 dependencies = [
-    "pyobjc-framework-Quartz",
-    "pyobjc-framework-Vision",
-    "pyobjc-framework-Cocoa",
-    "pyobjc-framework-ApplicationServices",
+    # iPhone control (iPhone Mirroring, Vision OCR) needs macOS. Android is
+    # plain adb and installs everywhere; these are skipped off macOS.
+    "pyobjc-framework-Quartz; sys_platform == 'darwin'",
+    "pyobjc-framework-Vision; sys_platform == 'darwin'",
+    "pyobjc-framework-Cocoa; sys_platform == 'darwin'",
+    "pyobjc-framework-ApplicationServices; sys_platform == 'darwin'",
 ]
 
 [project.urls]

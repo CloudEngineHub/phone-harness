@@ -3,7 +3,8 @@
 **[phone-harness](https://phone-harness.com?utm_source=github&utm_medium=readme&utm_campaign=header)** · let your agent control your phone.
 
 Connect Claude Code, Codex, or any agent to your real phone. **iPhone** through
-the Mac's iPhone Mirroring window, **Android** over adb. No jailbreak, no
+the Mac's iPhone Mirroring window, **Android** over adb from macOS, Linux or
+Windows. No jailbreak, no
 Xcode, nothing installed on the phone. The agent sees the screen, taps, types,
 and reads the result.
 
