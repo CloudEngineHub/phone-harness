@@ -38,6 +38,11 @@ PY
   # task: report the iOS version and model name from Settings
   # step: scroll to General, open About, read the screen
   ```
+- **Tell the user what you are doing as you go.** A phone task is many short
+  scripts, and the user sees none of them: say one line before each script
+  (what you are about to do) and one line after it (what you saw). Never run
+  two scripts in a row in silence. The `# task:` / `# step:` comments are not
+  this — the user cannot see them.
 - Helpers are pre-imported. All coordinates are global screen points.
 - `ensure_mirroring()` launches the window and gates on connection. The
   default build works the phone **without taking the user's focus**: capture is
@@ -159,10 +164,31 @@ PY
   Prefer `ui()` / `find_nodes()` / `tap_ui()`: they also see elements with no
   visible text (icons with a content-description, fields by resource-id like
   `tap_ui("url_bar")`). `ocr_pixels()` is Unsupported here.
-- `back()`, `current_app()`, `list_apps()` exist. `open_app("chrome")`
-  matches installed package ids and returns the one launched.
+- **adb is the native language here, and it is first-class.** `shell(cmd)`
+  runs `adb shell cmd` on whichever phone the harness chose, so anything you
+  know how to do with adb, do: `shell("input tap 360 640")`,
+  `shell("input keyevent KEYCODE_BACK")`, `shell("am start -n pkg/.Activity")`,
+  `shell("dumpsys notification --noredact")`, `shell("pm list packages -3")`.
+  The input helpers (`tap`, `swipe`, `press`, `home`) are one-line wrappers
+  over the same commands — use whichever you think in. What the harness adds
+  that raw adb does not: finding and reconnecting the phone, and reading the
+  screen as a short list instead of a page of XML.
+- **On Android, `scroll` and `swipe` are different gestures.** `scroll` moves
+  the content and stops: no momentum, the same distance every time, so use it
+  (and `scroll_until` / `scroll_collect`) to walk a list without skipping
+  rows. `swipe` is a flick and coasts past whatever was next — right for "next
+  video" or changing pages, wrong for reading a list. (The note above about
+  vertical swipes doing nothing is about iPhone Mirroring; here both work.)
+- `open_app("TikTok")` takes the name a person would say, a package id, or a
+  fragment of one, and returns the package it launched. When nothing matches,
+  the error lists what is installed. `back()`, `current_app()`, `list_apps()`
+  exist.
 - `press()` takes single keys only (`"enter"`, `"back"`, `"tab"`); chords
-  raise Unsupported. `type_text` needs a focused field, same as iOS.
+  raise Unsupported. `type_text` needs a focused field, same as iOS, and types
+  ASCII: adb cannot type emoji or accented letters.
+- **Some screens never give up their tree** — a playing video, a screen that
+  animates. `ocr()` / `ui()` then raise saying so; take a `screenshot()` and
+  look at it instead of retrying.
 - No focus to keep: nothing on the Mac has to be frontmost, and
   `interruption(before, after)` always reports nothing disturbed.
 - **Verify cheaply, then read.** adb reports nothing about outcomes — a tap on
@@ -185,6 +211,42 @@ PY
   debugging + `phone-harness android pair CODE`); on `no-device` the
   error names the missing step — relay it, don't retry-loop.
   `phone-harness android` shows known phones and what is attached.
+
+## Cloud phones
+
+`phone-harness cloud start` rents the user's own Android phone from Phone
+Harness Cloud and connects to it; from then on every script drives that phone
+with nothing exported, exactly as the Android section describes. It is the
+same phone each time: apps, logins and normally the exact screen are kept
+between sessions.
+
+```bash
+phone-harness cloud            # signed in? a phone attached? minutes left?
+phone-harness cloud start      # about 15s; safe to run twice, it reattaches
+phone-harness cloud watch      # opens the live view for the user
+phone-harness cloud stop       # ends billing and saves the phone
+```
+
+- **It bills by the minute while it is up.** Start it once and keep it for the
+  whole conversation — a stop and a restart between two requests wastes more
+  than it saves. Stop it when the user is done, and say that you did.
+- **Stop before the deadline, because a session cannot be extended.** One
+  that simply runs out keeps the phone's data but not its running state. The
+  harness warns on stderr when under two minutes remain; `phone-harness cloud`
+  shows the time left. If the task needs longer, stop and start again: the
+  phone comes back where it was in about 15 seconds. `cloud stop` returns at
+  once; the save finishes on its own, and a `cloud start` during it waits.
+- **A session the user started is theirs.** `cloud start` attaches to a phone
+  that is already running instead of starting another; leave that one running
+  unless they ask you to stop it.
+- `Not signed in` means the user has to run `phone-harness cloud login` and
+  approve it in a browser. Relay that; you cannot do it for them.
+- Offer `cloud watch` early on a long task, so the user can see the phone
+  instead of waiting for your report. `cloud start --temp` is a throwaway
+  phone that keeps nothing.
+- The connection is handled for you, including reconnecting after a drop.
+  The adb address the CLI shows is not a secret; the unlock code is, and you
+  never need it — do not look for it, print it, or ask the user for it.
 
 ## Consent
 
