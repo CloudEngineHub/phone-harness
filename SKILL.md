@@ -223,7 +223,7 @@ between sessions.
 ```bash
 phone-harness cloud            # signed in? a phone attached? minutes left?
 phone-harness cloud start      # about 15s; safe to run twice, it reattaches
-phone-harness cloud watch      # opens the live view for the user
+phone-harness cloud watch      # (re)open the live view; `start` already opens it
 phone-harness cloud stop       # ends billing and saves the phone
 ```
 
@@ -241,9 +241,14 @@ phone-harness cloud stop       # ends billing and saves the phone
   unless they ask you to stop it.
 - `Not signed in` means the user has to run `phone-harness cloud login` and
   approve it in a browser. Relay that; you cannot do it for them.
-- Offer `cloud watch` early on a long task, so the user can see the phone
-  instead of waiting for your report. `cloud start --temp` is a throwaway
-  phone that keeps nothing.
+- `cloud start` opens the phone's live view in the user's browser, so they
+  can watch you work; `cloud watch` reopens it if they closed it. That view
+  is read-only. When the user wants to take the controls themselves — to
+  type a password, pass a 2FA prompt, or just drive — run
+  `phone-harness cloud open`: the dashboard, behind their own sign-in, with
+  the interactive viewer. Wait for them to say they are done before you
+  touch the phone again. `cloud start --temp` is a throwaway phone that
+  keeps nothing.
 - The connection is handled for you, including reconnecting after a drop.
   The adb address the CLI shows is not a secret; the unlock code is, and you
   never need it — do not look for it, print it, or ask the user for it.
