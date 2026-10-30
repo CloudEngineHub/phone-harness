@@ -15,9 +15,11 @@ import json
 import os
 import tempfile
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
+from . import telemetry
 from .transport import Backend, Unsupported
 
 USER_AGENT = "phone-harness-cli"
@@ -97,7 +99,8 @@ class Remote(Backend):
 
     def _call(self, method, path, body=None, timeout=60):
         data = json.dumps(body).encode() if body is not None else None
-        headers = {"Authorization": f"Bearer {self.token}", "User-Agent": USER_AGENT}
+        headers = {"Authorization": f"Bearer {self.token}", "User-Agent": USER_AGENT,
+                   **telemetry.cloud_headers()}
         if data:
             headers["Content-Type"] = "application/json"
         req = urllib.request.Request(self.url + path, data=data, method=method, headers=headers)
@@ -178,7 +181,8 @@ class Remote(Backend):
         return None
 
     def _session_detail(self):
-        return f"cloud phone at {self.url}"
+        # The control URL's path is the grant, so only its host is named.
+        return f"cloud phone at {urllib.parse.urlsplit(self.url).netloc}"
 
     def _focus_probe(self):
         return (True,)
